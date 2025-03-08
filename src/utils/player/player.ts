@@ -2,10 +2,12 @@ import * as ex from "excalibur";
 import { Config } from "../../config";
 import { Level } from "../level/level";
 import { Enemy } from "../enemy/enemy";
+import { Platform } from '../level/platform'
 import { generateAnimations, updateAnimation } from "./animations";
 
 export class Player extends ex.Actor {
   playing = false;
+  wallClinging = false;
   downVamp!: ex.Animation;
   upVamp!: ex.Animation;
   leftVamp!: ex.Animation;
@@ -18,7 +20,7 @@ export class Player extends ex.Actor {
   constructor(private level: Level) {
     super({
       pos: Config.PlayerStartPos,
-      radius: 32,
+      radius: 18,
       color: ex.Color.Yellow,
       collisionType: ex.CollisionType.Active,
     });
@@ -89,12 +91,35 @@ export class Player extends ex.Actor {
     this.acc = ex.vec(0, 0);
   }
 
-  override onCollisionStart(_self: ex.Collider, other: ex.Collider): void {
+  override onCollisionStart(_self: ex.Collider, other: ex.Collider, side: ex.Side): void {
+    console.log('side', side)
     if (other.owner instanceof Enemy) {
       this.decrementHealth(5)
+    } else if (other.owner instanceof Platform) {
+      if (side === 'Bottom') {
+        this.vel.y = 0;
+        this.acc.y = 0;
+        // this.wallClinging = true
+      }
+      if (side === 'Right' || side === 'Left') {
+        this.vel.x = 0;
+        this.acc.x = 0;
+      }
+      if (side === 'Top') {
+        this.acc.y = 0;
+      }
+    } else {
+      this.stop();
     }
+  }
 
-    this.stop();
+  override onCollisionEnd(_self: ex.Collider, other: ex.Collider): void {
+    if (other.owner instanceof Platform) {
+      this.acc.y = Config.PlayerFallAcc;
+      this.vel.x = 0;
+      this.acc.x = 0;
+      this.wallClinging = false;
+    }
   }
 
   override onPreUpdate() {

@@ -42,21 +42,21 @@ export const updateAnimation = (player: Player, engine: ex.Engine) => {
 }
 
 const updateWalkingAnimation = (player: Player, engine: ex.Engine) => {
-  if (engine.input.keyboard.isHeld(ex.Keys.S)) {
-    // player.graphics.use("playerWalkDown");
-    player.vel.y = Config.PlayerVelocity;
-  } else if (engine.input.keyboard.isHeld(ex.Keys.W)) {
+  if (engine.input.keyboard.wasPressed(ex.Keys.W)) {
     // player.graphics.use("playerWalkUp");
-    player.vel.y = -Config.PlayerVelocity;
-  } else {
-    player.vel.y = 0;
+    player.vel.y = Config.PlayerJumpVelocity;
+    player.acc.y = Config.PlayerFallAcc;
   }
   if (engine.input.keyboard.isHeld(ex.Keys.D)) {
     player.graphics.use("playerWalkRight");
-    player.vel.x = Config.PlayerVelocity;
+    if (!player.wallClinging) {
+      player.vel.x = Config.PlayerWalkVelocity;
+    }
   } else if (engine.input.keyboard.isHeld(ex.Keys.A)) {
     player.graphics.use("playerWalkLeft");
-    player.vel.x = -Config.PlayerVelocity;
+    if (!player.wallClinging) {
+      player.vel.x = -Config.PlayerWalkVelocity;
+    }
   } else {
     player.vel.x = 0;
   }
@@ -64,12 +64,6 @@ const updateWalkingAnimation = (player: Player, engine: ex.Engine) => {
 
 const updateIdleAnimation = (player: Player) => {
   switch (player.lastKeyPressed) {
-    case ex.Keys.S:
-      player.graphics.use("playerIdleDown");
-      break;
-    case ex.Keys.W:
-      player.graphics.use("playerIdleUp");
-      break;
     case ex.Keys.D:
       player.graphics.use("playerIdleRight");
       break;
@@ -77,6 +71,6 @@ const updateIdleAnimation = (player: Player) => {
       player.graphics.use("playerIdleLeft");
       break;
     default:
-      player.graphics.use("playerIdleDown");
+      player.graphics.use("playerIdleRight");
   }
 }

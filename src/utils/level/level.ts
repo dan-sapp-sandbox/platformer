@@ -2,6 +2,8 @@ import * as ex from "excalibur";
 import { Player } from "../player/player";
 import { Resources } from "../resources";
 import { generatePauseScreen } from './pause'
+import { Platform } from "./platform";
+import { Config } from '../../config'
 
 export class Level extends ex.Scene {
   player: Player = new Player(this);
@@ -15,6 +17,12 @@ export class Level extends ex.Scene {
     generatePauseScreen(engine);
 
     this.add(this.player);
+    const plat1 = new Platform(ex.vec(Config.WorldWidth / 4, Config.WorldHeight / 2), 1.1)
+    const plat2 = new Platform(ex.vec(3 * Config.WorldWidth / 4, Config.WorldHeight / 2), 1.2)
+    const floor = new Platform(ex.vec(Config.WorldWidth / 2, Config.WorldHeight - 50), Config.WorldWidth)
+    this.add(plat1);
+    this.add(plat2);
+    this.add(floor);
 
     this.player.start();
   }
